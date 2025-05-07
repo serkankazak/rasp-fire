@@ -27,3 +27,5 @@ bash ok.sh mod
 ```
 
 https://www.youtube.com/watch?v=00yRUxAuwiw
+
+[![demo](http://img.youtube.com/vi/00yRUxAuwiw/0.jpg)](http://www.youtube.com/watch?v=00yRUxAuwiw "demo")
