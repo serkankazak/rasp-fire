@@ -1,0 +1,164 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+<table class="table table-sm table-hover" id="t"></table>
+<br>
+<span>sort </span><input type="checkbox" id="chk" onclick="checkboxClick()" checked>
+<br>
+<script>
+
+var checkbox = false;
+
+function checkboxClick() {
+	if (document.getElementById("chk").checked == true) {
+		checkbox = false;
+	} else {
+		checkbox = true;
+	}
+}
+
+function sortTable() {
+	if (checkbox) { return; }
+	var tbl = document.getElementById("t");
+	var rs;
+	var swi;
+	var run = true;
+	while (run) {
+		run = false;
+		rs = tbl.querySelectorAll("tr");
+		for (var i = 0; i < (rs.length - 1); i++) {
+			swi = false;
+			if (parseInt(rs[i].querySelector('td:nth-child(4) > span').getAttribute('data-epo')) < parseInt(rs[i + 1].querySelector('td:nth-child(4) > span').getAttribute('data-epo'))) {
+				swi = true;
+				break;
+			}
+		}
+		if (swi) {
+			rs[i].parentNode.insertBefore(rs[i + 1], rs[i]);
+			run = true;
+		}
+	}
+}
+
+var delbut = "<button onclick=\"this.disabled = true; del(this.parentNode.parentNode.querySelector('td').innerHTML)\">&#10006;</button>";
+var alwbut = "<button onclick=\"this.disabled = true; alw(this.parentNode.parentNode.querySelector('td').innerHTML)\">&#10004;</button>"; 
+var ws = new WebSocket('wss://192.192.192.192:8765');
+
+var cdns = {};
+
+ws.onopen = function () {
+	console.log('[*]: connected');
+}
+
+ws.onerror = function () {
+	var a = document.createElement('a');
+	a.id = 'aaa';
+	a.setAttribute('href', 'https://192.192.192.192:8765');
+	a.setAttribute('target', '_blank');
+	a.prepend(document.createTextNode('open to accept certificate'));
+	document.body.appendChild(a);
+}
+
+var first = true;
+
+ws.onmessage = function (ev) {
+
+	console.log(ev.data);
+
+	if (first) {
+		first = false;
+		var table = document.getElementById("t");
+		JSON.parse(ev.data).forEach(x => {
+			var row = table.insertRow(0);
+			row.classList.add("table-success");
+			insert(row, x[0], x[1], "0", '<span data-epo="' + 0 + '">' + 0 + '</span>', delbut);
+		});
+	}
+
+	if (ev.data.length > 5) {
+		if (ev.data.slice(0, 4) == "rem0") {
+			document.getElementById("t").querySelectorAll('tr').forEach(x => {
+				if (x.querySelectorAll('td')[0].innerHTML == ev.data.split(",")[1]) {
+					x.querySelectorAll('td')[4].innerHTML = alwbut;
+					x.classList.remove("table-success");
+					x.classList.add("table-danger");
+				}
+			});
+		} else if (ev.data.slice(0, 4) == "add2") {
+			document.getElementById("t").querySelectorAll('tr').forEach(x => {
+				if (x.querySelector('td').innerHTML == ev.data.split(",")[1]) {
+					x.querySelectorAll('td')[4].innerHTML = delbut;
+					x.classList.remove("table-danger");
+					x.classList.add("table-success");
+				}
+			});
+		} else if (ev.data.slice(0, 4) == "ipip") {
+			inc(ev.data.split(",")[1]);
+		} else if (ev.data.slice(0, 4) == "dnss") {
+			dns(ev.data.split(",")[1], ev.data.split(",")[2]);
+		} else {
+			console.log("[!] " + ev.data);
+		}
+	} else {
+		console.log("[!] " + ev.data);
+	}
+
+}
+
+function insert(row, ip, dm, co, la, bu) {
+	var cell1 = row.insertCell(0);
+	var cell2 = row.insertCell(1);
+	var cell3 = row.insertCell(2);
+	var cell4 = row.insertCell(3);
+	var cell5 = row.insertCell(4);
+
+	cell1.innerHTML = ip;
+	cell2.innerHTML = dm;
+	cell3.innerHTML = co;
+	cell4.innerHTML = la;
+	cell5.innerHTML = bu;
+}
+
+function inc(ip) {
+	var f = true;
+	document.getElementById("t").querySelectorAll('tr').forEach(x => {
+		if (x.querySelector('td') && x.querySelector('td').innerHTML == ip) {
+			var co = x.querySelectorAll('td')[2];
+			co.innerHTML = parseInt(co.innerHTML) + 1;
+			var ddd = new Date();
+			x.querySelectorAll('td')[3].innerHTML = '<span data-epo="' + ddd.getTime() + '">' + ddd.toLocaleTimeString() + '</span>';
+			sortTable();
+			f = false;
+		}
+	});
+	if (f) {
+		var row = document.getElementById('t').insertRow(0);
+		row.classList.add("table-danger");
+		var ddd = new Date();
+		insert(row, ip, cdns[ip] ? cdns[ip].join(", ") : "", "1", '<span data-epo="' + ddd.getTime() + '">' + ddd.toLocaleTimeString() + '</span>', alwbut);
+		sortTable();
+	}
+}
+
+function dns(ip, dn) {
+	if (cdns[ip] == null) { cdns[ip] = []; }				
+	if (cdns[ip] && cdns[ip].indexOf(dn) == -1) { cdns[ip].push(dn); console.log(cdns); }
+	document.getElementById("t").querySelectorAll('tr').forEach(x => {
+		if (x.querySelector('td') && x.querySelector('td').innerHTML == ip) {
+			x.querySelectorAll('td')[1].innerHTML = cdns[ip] ? cdns[ip].join(", ") : "";
+		}
+	});
+}
+
+function alw(ip) {
+	ws.send('secret1234' + 'allow,' + ip);
+}
+function del(ip) {
+	ws.send('secret1234' + 'remove,' + ip);
+}
+
+</script>
+</body>
+</html>
