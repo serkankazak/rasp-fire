@@ -1,0 +1,32 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+iptables -F
+iptables -t nat -F
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -P FORWARD DROP
+iptables -A FORWARD -i wlan0 -o eth0 -j LOG --log-prefix '<<firefire>>'
+iptables -A FORWARD -i wlan0 -o eth0 -j REJECT
+iptables -A FORWARD -i eth0 -o wlan0 -j REJECT
+systemctl start hostapd
+systemctl start dnsmasq
+
+bash /home/user/Downloads/rasp-fire/start.sh &
+
+exit 0
