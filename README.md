@@ -1,4 +1,4 @@
-# rasp-fire
+### Intercept DNS traffic and monitor/block/allow any ip/domain with Raspberry PI
 
 ```
 # tested on Bullseye
