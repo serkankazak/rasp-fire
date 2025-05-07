@@ -13,7 +13,7 @@ sudo apt update
 
 sudo apt install -y dnsmasq hostapd nodejs git tcpdump
 
-git clone
+git clone https://github.com/serkankazak/rasp-fire.git
 
 cd rasp-fire
 
