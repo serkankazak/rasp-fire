@@ -1,5 +1,7 @@
 ### Intercept DNS traffic and monitor/block/allow any ip/domain with Raspberry PI
 
+https://github.com/user-attachments/assets/23d212d8-a76e-40f3-a7fb-ea93fd1d0717
+
 ```
 # tested on Bullseye
 
