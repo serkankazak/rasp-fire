@@ -3,7 +3,7 @@
 https://github.com/user-attachments/assets/23d212d8-a76e-40f3-a7fb-ea93fd1d0717
 
 ```
-# tested on Bullseye
+# tested on Bullseye (bookworm currently does not supported but with little effort you can run on it)
 
 sudo apt install -y ca-certificates curl gnupg
 
