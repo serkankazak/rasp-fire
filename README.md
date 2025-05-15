@@ -2,6 +2,8 @@
 
 https://github.com/user-attachments/assets/23d212d8-a76e-40f3-a7fb-ea93fd1d0717
 
+https://github.com/user-attachments/assets/8d14a2f5-f1b3-4f4e-9059-a7fa0d2f4821
+
 #### you need ethernet and wifi. (or two wifi)
 
 ```
